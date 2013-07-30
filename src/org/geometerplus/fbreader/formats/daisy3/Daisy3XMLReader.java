@@ -178,13 +178,22 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 		    
 			Daisy3XMLTagListAction.getInstance().startList(this, attributes);
 			
-        } else if (tag.substring(tag.length() - 5).equals(":math") || tag.equals("math")){
+        } else if (tag.length() > 5 && (tag.substring(tag.length() - 5).equals(":math"))){
+                
+            if(!Daisy3XMLTagMathMLAction.hasMathMLHashMap()){
+                
+                Daisy3InnerXMLParser innerParser = new Daisy3InnerXMLParser(this.daisy3XmlFile, tag);
+                Daisy3XMLTagMathMLAction.setMathMLHashMap(innerParser.getIdMap());
+            
+            }    
+                      
+        }
+        else if(tag.equals("math")){
             
             if(!Daisy3XMLTagMathMLAction.hasMathMLHashMap()){
                 
-                Daisy3InnerXMLParser innerParser = new Daisy3InnerXMLParser(this.daisy3XmlFile, "math");
-         
-                Daisy3XMLTagMathMLAction.setMathMLHashMap(innerParser.getIdMap());
+                    Daisy3InnerXMLParser innerParser = new Daisy3InnerXMLParser(this.daisy3XmlFile, tag);
+                    Daisy3XMLTagMathMLAction.setMathMLHashMap(innerParser.getIdMap());
                 
             }
             
