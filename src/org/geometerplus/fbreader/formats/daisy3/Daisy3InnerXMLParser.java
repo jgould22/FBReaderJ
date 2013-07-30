@@ -4,6 +4,7 @@ import java.util.zip.*;
 
 import org.geometerplus.fbreader.formats.util.MiscUtil;
 
+import java.io.*;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -66,7 +67,10 @@ public class Daisy3InnerXMLParser {
     
     private void parseXml(ZLFile xmlFile) throws XmlPullParserException, IOException{
         
-        InputStream input = getInputStreamFromZip(xmlFile);
+        InputStream input=null;
+        
+       if(daisy3XMLFileName.substring(daisy3XMLFileName.length()-3).equals("zip")) {
+        input = getInputStreamFromZip(xmlFile);
         
         ZipFile daisy3zip = new ZipFile(daisy3XMLFileName);
      
@@ -81,7 +85,12 @@ public class Daisy3InnerXMLParser {
                 
               }
             }
-               
+       }else if(daisy3XMLFileName.substring(daisy3XMLFileName.length()-3).equals("xml")){   
+           
+           input = new FileInputStream(daisy3XMLFileName);
+           
+       }
+       
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         XmlPullParser parser = factory.newPullParser();
         XmlPullParser previousTagParser = factory.newPullParser();
@@ -194,6 +203,7 @@ public class Daisy3InnerXMLParser {
                     {
                           daisy3XMLFileName = myFilePrefix + daisy3content.getLongName();   
                          Log.d("Zip File Location",  myFilePrefix + daisy3content.getLongName());
+                         break;
                     }
                 }
             }     
