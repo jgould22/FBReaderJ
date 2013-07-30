@@ -14,6 +14,11 @@ import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 import org.geometerplus.zlibrary.core.xml.ZLStringMap;
 import org.geometerplus.zlibrary.core.xml.ZLXMLReaderAdapter;
 
+import android.util.Log;
+
+
+
+
 /**
  * Reader class for a Daisy3 XML file
  *
@@ -25,6 +30,7 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 	String myPathPrefix;
 	String myLocalPathPrefix;
 	String myReferencePrefix;
+	private ZLFile daisy3XmlFile;
 	boolean myPreformatted;
 	boolean myInsideBody;
 	private final Map<String,Integer> myFileNumbers;
@@ -54,14 +60,16 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 		return old;
 	}
 
-	/**
+	 /**
 	 * Fill the HashMap with tag<=>Daisy3XMLTagAction mappings.
 	 */
 	public static void fillTagTable() {
+	    
+	    
 		if (!ourTagActions.isEmpty()) {
 			return;
 		}
-
+		
 		addAction("p", new Daisy3XMLTagParagraphAction());
 		addAction("h1", new Daisy3XMLTagParagraphWithControlAction(FBTextKind.H1));
 		addAction("h2", new Daisy3XMLTagParagraphWithControlAction(FBTextKind.H2));
@@ -88,6 +96,9 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 				"Image Description.", "End Image Description."));
 		addAction("caption",  new Daisy3XMLTagAnnotatedWithControlAction(FBTextKind.PRODNOTE,
 				"Caption.", "End Caption."));
+		
+		//MathML (mathematical equations)
+		//addAction("math", Daisy3XMLTagMathMLAction.getInstance());
 		
 		//Special formatting.
 		addAction("strong", new Daisy3XMLTagControlAction(FBTextKind.STRONG));
@@ -134,10 +145,13 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 	 */
 	public boolean readFile(ZLFile file, String referencePrefix) {
 		fillTagTable();
-
+		
+		daisy3XmlFile = file;
+		
 		myReferencePrefix = referencePrefix;
 
 		myPathPrefix = MiscUtil.htmlDirectoryPrefix(file);
+		    
 		myLocalPathPrefix = MiscUtil.archiveEntryName(myPathPrefix);
 
 		myPreformatted = false;
@@ -157,12 +171,24 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 		if (id != null) {
 			myModelReader.addHyperlinkLabel(myReferencePrefix + id);
 		}
-
+		  
 		tag = tag.toLowerCase();
 		
 		if (tag.equals("list")) {
+		    
 			Daisy3XMLTagListAction.getInstance().startList(this, attributes);
-        } else if (tag.equals("pagenum")) {
+			
+        } else if (tag.substring(tag.length() - 5).equals(":math") || tag.equals("math")){
+            
+            if(!Daisy3XMLTagMathMLAction.hasMathMLHashMap()){
+                
+                Daisy3InnerXMLParser innerParser = new Daisy3InnerXMLParser(this.daisy3XmlFile, "math");
+         
+                Daisy3XMLTagMathMLAction.setMathMLHashMap(innerParser.getIdMap());
+                
+            }
+            
+        }else if (tag.equals("pagenum")) {
             Daisy3XMLTagAction action = ourTagActions.get(tag);
             if (action != null) {
                 Daisy3XMLTagPageControlAction pageAction =  (Daisy3XMLTagPageControlAction)action;
@@ -213,7 +239,9 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 cycle:
 			while (spaceCounter < len) {
 				switch (data[start + spaceCounter]) {
+				    //Backspace
 					case 0x08:
+					//
 					case 0x09:
 					case 0x0A:
 					case 0x0B:
