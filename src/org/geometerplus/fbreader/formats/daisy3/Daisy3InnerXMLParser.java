@@ -31,8 +31,6 @@ import java.util.List;
 public class Daisy3InnerXMLParser {
 
     private HashMap<String,String> xmlIdMap  = new HashMap<String,String>();  
-    
-    private String daisy3XMLFileName;
     private String tag;
   
     
@@ -46,8 +44,6 @@ public class Daisy3InnerXMLParser {
     public  Daisy3InnerXMLParser(ZLFile xmlFile, String Tag){
         
         this.tag=Tag;
-        
-        setXMLFilePath(xmlFile);
         
         try{
             
@@ -67,30 +63,8 @@ public class Daisy3InnerXMLParser {
     
     private void parseXml(ZLFile xmlFile) throws XmlPullParserException, IOException{
         
-        InputStream input=null;
-        
-       if(daisy3XMLFileName.substring(daisy3XMLFileName.length()-3).equals("zip")) {
-        input = getInputStreamFromZip(xmlFile);
-        
-        ZipFile daisy3zip = new ZipFile(daisy3XMLFileName);
+        InputStream input = getInputStream(xmlFile);
      
-        
-            for (Enumeration<? extends ZipEntry> e = daisy3zip.entries();
-                  e.hasMoreElements();) {
-              ZipEntry ze = e.nextElement();
-              String name = ze.getName();
-              if (name.endsWith(".xml")) {
-                  input = daisy3zip.getInputStream(ze);
-                  break;
-                
-              }
-            }
-       }else if(daisy3XMLFileName.substring(daisy3XMLFileName.length()-3).equals("xml")){   
-           
-           input = new FileInputStream(daisy3XMLFileName);
-           
-       }
-       
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         XmlPullParser parser = factory.newPullParser();
         XmlPullParser previousTagParser = factory.newPullParser();
@@ -144,9 +118,8 @@ public class Daisy3InnerXMLParser {
                 break;
             }
         }
+        
         String content = sb.toString();
-       
-        Log.d("InnerXML Gooten", content);
         
         return content;
     }
@@ -156,60 +129,6 @@ public class Daisy3InnerXMLParser {
         return file.getInputStream();
         
     }
-  
-    private InputStream getInputStreamFromZip (ZLFile file) throws IOException {
-      
-     ZipFile daisy3zip = new ZipFile(daisy3XMLFileName);
-     InputStream xmlInputStream = null;
-  
-         for (Enumeration<? extends ZipEntry> e = daisy3zip.entries(); e.hasMoreElements();) {
-           
-             ZipEntry ze = e.nextElement();
-           
-             String name = ze.getName();
-           
-             if (name.endsWith(".xml")) {
-                 
-               xmlInputStream = daisy3zip.getInputStream(ze);
-               break;
-             
-           }
-             
-         }
-       
-         return xmlInputStream;
-      
-  }
-    
-    /*
-     * Sets the XML file path to the xml file in the daisy3 zip
-     * @param ZLFile Represents the XML file 
-     */
-   private void setXMLFilePath (ZLFile file){
-        
-        String myFilePrefix = MiscUtil.htmlDirectoryPrefix(file);
-        
-        final String extension = file.getExtension().intern();
-        String name = file.getShortName();
-        if(extension.equals("xml") && !name.startsWith("._")){
-            ZLFile parentDirectory = file.getParent();
-            List<ZLFile> children =  parentDirectory.children();
-            for(ZLFile daisy3content : children){
-                String str = daisy3content.getShortName();
-               
-                //Get the XML file name. This file contains the Daisy3 content
-                if(daisy3content.getExtension().equals("xml")){
-                    if(!str.startsWith("._"))
-                    {
-                          daisy3XMLFileName = myFilePrefix + daisy3content.getLongName();   
-                         Log.d("Zip File Location",  myFilePrefix + daisy3content.getLongName());
-                         break;
-                    }
-                }
-            }     
-        }
-    }
-    
     
     /*
      * getInnerXML method
