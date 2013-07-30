@@ -182,7 +182,7 @@ public class Daisy3InnerXMLParser {
         
         final String extension = file.getExtension().intern();
         String name = file.getShortName();
-        if(extension.equals("opf") && !name.startsWith("._")){
+        if(extension.equals("xml") && !name.startsWith("._")){
             ZLFile parentDirectory = file.getParent();
             List<ZLFile> children =  parentDirectory.children();
             for(ZLFile daisy3content : children){
