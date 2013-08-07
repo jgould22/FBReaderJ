@@ -30,7 +30,9 @@ import javax.xml.transform.stream.StreamResult;
 
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -46,8 +48,8 @@ import javax.xml.transform.sax.SAXSource;
 
 /*
  *  
- * Class for extraction of full MathM (as a string)L from a daisy3 XML file
- * Using XML pull parser it parses the XML and adds it to a hash map 
+ * Class for extraction of inner xml (as a string) from a daisy3 XML file
+ * Using Sax parser it parses the XML and adds it to a hash map 
  * for later retrieval by the XMLTagMathMLAction
  * @author Jordan Gould jordangould@gmail.com
  * 
@@ -56,7 +58,7 @@ public class Daisy3InnerXMLParser {
 
     private HashMap<String,String> xmlIdMap  = new HashMap<String,String>();  
     private String tag;
-    private ZLStringMap attributes;
+    private String tagId;
   
     
     /*@constructor
@@ -69,7 +71,7 @@ public class Daisy3InnerXMLParser {
     public  Daisy3InnerXMLParser(ZLFile xmlFile, String Tag, ZLStringMap attributes){
         
             this.tag=Tag;
-            this.attributes = attributes;
+            this.tagId = attributes.getValue("id");
             try{
                 parseXml(xmlFile); 
             }
@@ -112,7 +114,19 @@ public class Daisy3InnerXMLParser {
             if(tag.equals(qName)) { 
                 System.out.println("START InnerXML " + qName); 
                 
-                InnerContentHandler innerContentHandler = new InnerContentHandler(xmlReader, this, qName, atts);
+                StringBuilder startTag = new StringBuilder();
+                
+                startTag.append("<" + qName + " ");
+                
+                for(int i=0 ;i < atts.getLength(); i++){
+                    
+                    startTag.append(" " + atts.getQName(i) + "=\""+ atts.getValue(i) + "\"");
+                    
+                }
+                
+                startTag.append(">");
+                
+                InnerContentHandler innerContentHandler = new InnerContentHandler(xmlReader, this, startTag.toString(),atts);
                 
                 xmlReader.setContentHandler(innerContentHandler); 
                 
@@ -150,19 +164,21 @@ public class Daisy3InnerXMLParser {
         private XMLReader xmlReader; 
         private ContentHandler contentHandler;
         private StringBuilder stringBuilder = new StringBuilder();
-        private String innerTagId;
-        private boolean isFirstTag;
+        private boolean isFirstTag = true;
+        private String startTagId;
         private String startTag;
-        private Attributes startAttributes;
+
        
         
 
         public InnerContentHandler(XMLReader xmlReader, ContentHandler contentHandler, String startTag, Attributes atts) { 
+           
             this.contentHandler = contentHandler; 
             this.xmlReader = xmlReader; 
             this.startTag = startTag;
-            this.startAttributes = atts;
+            this.startTagId = atts.getValue("id");
             
+                 
         } 
 
         public void setDocumentLocator(Locator locator) { 
@@ -188,32 +204,28 @@ public class Daisy3InnerXMLParser {
             
             if(isFirstTag){
                 
-                innerTagId = atts.getValue("id");
+                stringBuilder.append(startTag);
+ 
                 isFirstTag = false;
-                stringBuilder.append("<" + startTag + " ");
-                
-                for(int i=0 ;i < startAttributes.getLength(); i++){
-                    
-                    stringBuilder.append(" " + startAttributes.getQName(i) + "=" + startAttributes.getValue(i));
-                    
-                }
-                
+           
             }
             
             //append the math tag
-            stringBuilder.append("<" + qName + " ");
+            stringBuilder.append("<" + qName);
             
             //append attributes
             
             for(int i=0 ;i < atts.getLength(); i++){
                 
-                stringBuilder.append(" " + atts.getQName(i) + "=" + atts.getValue(i));
+                stringBuilder.append(" " + atts.getQName(i) + "=\"" + atts.getValue(i) + "\"");
                 
             }
             
             stringBuilder.append(">");
             
+            
             depth++; 
+            
         } 
 
         public void endElement(String uri, String localName, String qName) 
@@ -226,7 +238,7 @@ public class Daisy3InnerXMLParser {
             depth--; 
             if(0 == depth) { 
                 
-               xmlIdMap.put(innerTagId, stringBuilder.toString());
+               xmlIdMap.put(getTagID(), stringBuilder.toString());
                
                Log.w("mathmloutput",stringBuilder.toString()); 
                
@@ -255,6 +267,12 @@ public class Daisy3InnerXMLParser {
         public void skippedEntity(String name) throws SAXException { 
         } 
         
+        public String getTagID(){
+            
+            return this.startTagId;
+            
+        }
+        
     
 
     } 
@@ -276,6 +294,8 @@ public class Daisy3InnerXMLParser {
         InputSource inputsource = new InputSource(getInputStream(xmlFile));
         
         xmlReader.parse(inputsource); 
+        
+        
         }
         catch(Exception e){
             System.out.println(e.getMessage());
@@ -301,6 +321,13 @@ public class Daisy3InnerXMLParser {
     }
     
     /*
+     * getInnerXML method
+     * @param String of the Tag ID for the XML tag 
+     * @return String contains the inner xml 
+     */
+ 
+    
+    /*
      * getIdMap method
      * @return HashMap containg the Inner XML 
      */
@@ -309,5 +336,15 @@ public class Daisy3InnerXMLParser {
         return xmlIdMap;
         
     }
+    
+    public static void printMap(HashMap<String,String> mp) {
+        Iterator it = mp.entrySet().iterator();
+        while (it.hasNext()) {
+            HashMap.Entry<String,String> pairs = (HashMap.Entry<String,String>)it.next();
+            System.out.println(pairs.getKey() + " = " + pairs.getValue());
+            it.remove(); // avoids a ConcurrentModificationException
+        }
+    }
+    
     
 }

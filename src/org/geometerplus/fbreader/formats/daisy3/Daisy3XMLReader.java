@@ -98,7 +98,7 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 				"Caption.", "End Caption."));
 		
 		//MathML (mathematical equations)
-		//addAction("math", Daisy3XMLTagMathMLAction.getInstance());
+		addAction("math", Daisy3XMLTagMathMLAction.getInstance());
 		
 		//Special formatting.
 		addAction("strong", new Daisy3XMLTagControlAction(FBTextKind.STRONG));
@@ -178,29 +178,16 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 		    
 			Daisy3XMLTagListAction.getInstance().startList(this, attributes);
 			
-        } else if (tag.length() > 5 && (tag.substring(tag.length() - 5).equals(":math"))){
-            
-            Daisy3XMLTagMathMLAction.getInstance();
-            
-            if(!Daisy3XMLTagMathMLAction.hasMathMLHashMap()){
+        } else if ((tag.length() > 5 && (tag.substring(tag.length() - 5).equals(":math")))||(tag.equals("math"))){
+                    
+           // if(!Daisy3XMLTagMathMLAction.getInstance().hasMathMLHashMap()){
                 
-                Daisy3InnerXMLParser innerParser = new Daisy3InnerXMLParser(this.daisy3XmlFile, tag);
-                Daisy3XMLTagMathMLAction.setMathMLHashMap(innerParser.getIdMap());
+                Daisy3InnerXMLParser innerParser = new Daisy3InnerXMLParser(this.daisy3XmlFile, tag, attributes);
+                Daisy3XMLTagMathMLAction.getInstance().setMathMLHashMap(innerParser.getIdMap());
             
-            }    
-                      
-        }
-        else if(tag.equals("math")){
-            
-            Daisy3XMLTagMathMLAction.getInstance();
-            
-            if(!Daisy3XMLTagMathMLAction.hasMathMLHashMap()){
-                
-                    Daisy3InnerXMLParser innerParser = new Daisy3InnerXMLParser(this.daisy3XmlFile, tag);
-                    Daisy3XMLTagMathMLAction.setMathMLHashMap(innerParser.getIdMap());
-                
-            }
-            
+             //}        
+                Daisy3XMLTagMathMLAction.getInstance().doAtStart(this, attributes);
+             
         }else if (tag.equals("pagenum")) {
             Daisy3XMLTagAction action = ourTagActions.get(tag);
             if (action != null) {
