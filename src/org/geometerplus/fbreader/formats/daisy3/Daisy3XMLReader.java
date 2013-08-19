@@ -216,7 +216,11 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 	public boolean endElementHandler(String tag) {
 		if (tag.toLowerCase().equals("list")) {
 			Daisy3XMLTagListAction.getInstance().endList(this);
-		} else {
+		} else if ((tag.length() > 5 && (tag.substring(tag.length() - 5).equals(":math")))||(tag.equals("math"))){
+               
+        Daisy3XMLTagMathMLAction.getInstance().doAtEnd(this);
+     
+		}else {
 			Daisy3XMLTagAction action = ourTagActions.get(tag.toLowerCase());
 			if (action != null) {
 				action.doAtEnd(this);

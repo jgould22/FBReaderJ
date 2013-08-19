@@ -36,6 +36,9 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
     
     private boolean hasMap = false;
     
+    private static byte kind; 
+    
+    
     /**
      * Default constructor.
      */
@@ -78,11 +81,19 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
               
               String link = mathMLHTML.getAbsolutePath();
               
-              byte linkType = 37;
+              final byte hyperlinkType;
+             
+              hyperlinkType = FBTextKind.EXTERNAL_HYPERLINK;
               
-           modelReader.addHyperlinkControl(linkType, link);
-           
-           modelReader.addHyperlinkLabel("MathML Link");
+              kind = hyperlinkType;
+              
+              modelReader.addHyperlinkControl(hyperlinkType, link);
+              
+              modelReader.addHyperlinkLabel(reader.myReferencePrefix + "MathML Link");
+              
+           //   String mathLinkLabel = "Math Equation " + xmlattributes.getValue("id");
+              
+             // reader.characterDataHandler(mathLinkLabel.toCharArray(), start, len);
           
           } catch (Exception e) {
             e.printStackTrace();
@@ -96,7 +107,9 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
     protected void doAtEnd(Daisy3XMLReader reader) {
         // TODO Auto-generated method stub
        
-        reader.getModelReader().addControl(FBTextKind.REGULAR, false);
+        if (kind != FBTextKind.REGULAR) {
+            reader.getModelReader().addControl(kind, false);
+        }
         
     }
     
