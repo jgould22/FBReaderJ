@@ -1,27 +1,15 @@
 package org.geometerplus.fbreader.formats.daisy3;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.util.HashMap;
-
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.res.Resources;
 import android.os.Environment;
-import android.util.Log;
 
-
-
-import org.apache.http.client.utils.URIUtils;
 import org.geometerplus.fbreader.bookmodel.BookReader;
 import org.geometerplus.fbreader.bookmodel.FBTextKind;
 
+import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 import org.geometerplus.zlibrary.core.xml.ZLStringMap;
 
 public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
@@ -31,12 +19,10 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
     final static String mathMLTemplate2 = "</body></html>";
             
     private static Daisy3XMLTagMathMLAction instance = null;
-    
-    private  HashMap<String, String> mathMLMap = new HashMap<String,String>();
-    
-    private boolean hasMap = false;
-    
+     
     private static byte kind; 
+    
+    private ZLFile xmlFile;
     
     
     /**
@@ -51,31 +37,27 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         return instance;
     }
     
-    
-  
-    
-    
     @Override
     protected void doAtStart(Daisy3XMLReader reader, ZLStringMap xmlattributes) {
         
         final BookReader modelReader = reader.getModelReader();
         
-        String mathMLTagID = xmlattributes.getValue("id");
-      
-        Log.w("mathmloutput","I have found the Math ML " + mathMLMap.get(mathMLTagID) + " "+ mathMLMap.get(xmlattributes.getValue("id")));
+        Daisy3InnerXMLParser innerXMLParser = new Daisy3InnerXMLParser(xmlFile,xmlattributes);
+        
+        String mathML = innerXMLParser.getXMLString();
         
       if(checkStorageState()){
           
           
           File externalPath = Environment.getExternalStorageDirectory();
-          File mathMLHTML = new File(externalPath.getAbsolutePath() +"/Android/data/" + "org.geometerplus.android.fbreader" + "/mathML/" + xmlattributes.getValue("id") + ".html") ;
+          File mathMLHTML = new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/" + xmlFile.getShortName() +"/"+ xmlattributes.getValue("id") + ".html") ;
           
           try {
               mathMLHTML.getParentFile().mkdirs();
               mathMLHTML.createNewFile();
               FileOutputStream fOut = new FileOutputStream(mathMLHTML);
               OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-              myOutWriter.append(mathMLTemplate1 + mathMLMap.get(xmlattributes.getValue("id")) + mathMLTemplate2);
+              myOutWriter.append(mathMLTemplate1 + mathML + mathMLTemplate2);
               myOutWriter.close();
               fOut.close();
               
@@ -90,10 +72,6 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
               modelReader.addHyperlinkControl(hyperlinkType, link);
               
               modelReader.addHyperlinkLabel(reader.myReferencePrefix + "MathML Link");
-              
-           //   String mathLinkLabel = "Math Equation " + xmlattributes.getValue("id");
-              
-             // reader.characterDataHandler(mathLinkLabel.toCharArray(), start, len);
           
           } catch (Exception e) {
             e.printStackTrace();
@@ -150,28 +128,16 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         return size;
     }
     
-    /*
-     * hasMathMLHashMap Method
-     * @return boolean returns false if mathMLMap is null 
-     */
-    public boolean hasMathMLHashMap (){
-       
-        return hasMap;
+    
+    public void setXMLFile(ZLFile file){
+        
+        this.xmlFile= file;
         
     }
     
-    /*
-     * Setter methods
-     * @param HashMap<String, String> sets the Map containing the MathML with tag ids for keys
-     */
-    public void setMathMLHashMap(HashMap<String, String> map){
-        
-        if(!hasMap){
-            mathMLMap = map;
-            hasMap = true;
-        }
-    }
     
+    
+
    
 
     
