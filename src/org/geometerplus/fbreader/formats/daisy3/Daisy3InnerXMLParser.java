@@ -1,3 +1,9 @@
+/*
+ * Daisy3InnerXMLParser
+ * @author Jordan Gould jordangould@gmail.com
+ * 
+ */
+
 package org.geometerplus.fbreader.formats.daisy3;
 
 import javax.xml.parsers.SAXParser;
@@ -17,8 +23,6 @@ public class Daisy3InnerXMLParser {
     String xmlTag;
     String tagId;
     String innerXML;
-    
-    
     
     public  Daisy3InnerXMLParser(ZLFile xmlFile, ZLStringMap attributes){
         
@@ -45,9 +49,7 @@ public class Daisy3InnerXMLParser {
                 e.printStackTrace();
                 
             }
-        
-
-    
+   
 }
      
     private class MyContentHandler implements ContentHandler { 
@@ -77,7 +79,6 @@ public class Daisy3InnerXMLParser {
         public void startElement(String uri, String localName, String qName, 
                 Attributes atts) throws SAXException { 
             if(tagId.equals(atts.getValue("id"))) { 
-                System.out.println("START InnerXML " + qName); 
                 
                 StringBuilder startTag = new StringBuilder();
                 
@@ -95,19 +96,15 @@ public class Daisy3InnerXMLParser {
                 
                 xmlReader.setContentHandler(innerContentHandler); 
                 
-            } else { 
-                System.out.println("START " + qName); 
             } 
         } 
 
         public void endElement(String uri, String localName, String qName) 
                 throws SAXException { 
-            System.out.println("END " + qName); 
         } 
 
         public void characters(char[] ch, int start, int length) 
                 throws SAXException { 
-            System.out.println(new String(ch, start, length)); 
         } 
 
         public void ignorableWhitespace(char[] ch, int start, int length) 
@@ -125,7 +122,7 @@ public class Daisy3InnerXMLParser {
     
     
     
-     class InnerContentHandler implements ContentHandler { 
+     private class InnerContentHandler implements ContentHandler { 
 
         private int depth = 1; 
         private XMLReader xmlReader; 
@@ -163,9 +160,7 @@ public class Daisy3InnerXMLParser {
 
         public void startElement(String uri, String localName, String qName, 
                 Attributes atts) throws SAXException { 
-            
-            System.out.println("START InnerXML " + qName); 
-            
+        
             if(isFirstTag){
                 
                 stringBuilder.append(startTag);
@@ -186,16 +181,13 @@ public class Daisy3InnerXMLParser {
             }
             
             stringBuilder.append(">");
-            
-            
+     
             depth++; 
             
         } 
 
         public void endElement(String uri, String localName, String qName) 
                 throws SAXException { 
-              
-            System.out.println("END InnerXML " + qName); 
             
             stringBuilder.append("</" + qName +">");
             
@@ -213,8 +205,6 @@ public class Daisy3InnerXMLParser {
 
         public void characters(char[] ch, int start, int length) 
                 throws SAXException { 
-            
-            System.out.println(new String(ch, start, length)); 
             
             stringBuilder.append(new String(ch, start, length));
             

@@ -26,6 +26,7 @@ import android.net.Uri;
 import org.geometerplus.zlibrary.core.network.ZLNetworkException;
 
 import org.geometerplus.zlibrary.text.view.*;
+import java.io.*;
 
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
 import org.geometerplus.fbreader.bookmodel.FBHyperlinkType;
@@ -101,11 +102,25 @@ class ProcessHyperlinkAction extends FBAndroidAction {
 		} else {
 			externalUrl = true;
 		}
+		
 		final NetworkLibrary nLibrary = NetworkLibrary.Instance();
 		new Thread(new Runnable() {
 			public void run() {
 				nLibrary.initialize();
+				
+				if(urlString.endsWith("html") && urlString.startsWith("/")){
+				    
+				    File UriFile = new File(urlString);
+				    
+				    Uri uri = Uri.fromFile(UriFile);	
+				    
+				   intent.setClassName("com.android.browser", "com.android.browser.BrowserActivity");
+				   intent.setData(uri);
+				   intent.addCategory(Intent.CATEGORY_BROWSABLE); 
+				}
+				else{
 				intent.setData(Uri.parse(nLibrary.rewriteUrl(urlString, externalUrl)));
+				}
 				BaseActivity.runOnUiThread(new Runnable() {
 					public void run() {
 						try {

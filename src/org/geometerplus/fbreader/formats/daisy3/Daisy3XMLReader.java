@@ -179,9 +179,10 @@ public class Daisy3XMLReader extends ZLXMLReaderAdapter {
 			Daisy3XMLTagListAction.getInstance().startList(this, attributes);
 			
         } else if ((tag.length() > 5 && (tag.substring(tag.length() - 5).equals(":math")))||(tag.equals("math"))){
-                                 
+                      
+            //Set the XML file to be parsed for mathML
                 Daisy3XMLTagMathMLAction.getInstance().setXMLFile(daisy3XmlFile);
-
+            //Trigger Daisy3XMLTagMathMLAction
                 Daisy3XMLTagMathMLAction.getInstance().doAtStart(this, attributes);
              
         }else if (tag.equals("pagenum")) {

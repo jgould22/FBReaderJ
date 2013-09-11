@@ -46,13 +46,24 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         
         String mathML = innerXMLParser.getXMLString();
         
+    
       if(checkStorageState()){
-          
-          
+                 
           File externalPath = Environment.getExternalStorageDirectory();
           File mathMLHTML = new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/" + xmlFile.getShortName() +"/"+ xmlattributes.getValue("id") + ".html") ;
           
+          if(new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/").exists()){
+              //Cache maintenance check to see if the cache is greater than 5mb, if it is it clears everything except the current boo
+              if(folderSize(new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/"))>5242880){
+                  
+                  clearCache(new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/" + xmlFile.getShortName()));
+           
+              }
+          }
+          
+          
           try {
+              
               mathMLHTML.getParentFile().mkdirs();
               mathMLHTML.createNewFile();
               FileOutputStream fOut = new FileOutputStream(mathMLHTML);
@@ -61,7 +72,7 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
               myOutWriter.close();
               fOut.close();
               
-              String link = mathMLHTML.getAbsolutePath();
+              String link = externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML_cache/" + xmlFile.getShortName() +"/"+ xmlattributes.getValue("id") + ".html";
               
               final byte hyperlinkType;
              
@@ -83,14 +94,18 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
 
     @Override
     protected void doAtEnd(Daisy3XMLReader reader) {
-        // TODO Auto-generated method stub
-       
+               
+        //Return text to REGULAR
         if (kind != FBTextKind.REGULAR) {
             reader.getModelReader().addControl(kind, false);
         }
         
     }
     
+    /*
+     * CheckStorageState Method
+     * @return Boolean True if the storage is mounted false if not
+     */
     private boolean checkStorageState(){
         
         boolean mExternalStorageAvailable = false;
@@ -98,10 +113,10 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         String state = Environment.getExternalStorageState();
 
         if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // We can read and write the media
+            // Media can be written and read from 
             mExternalStorageAvailable = mExternalStorageWriteable = true;
         } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            // We can only read the media
+            // Media is read only 
             mExternalStorageAvailable = true;
             mExternalStorageWriteable = false;
         } else {
@@ -114,32 +129,70 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         
     }
     
-    private static long getDirSize(File dir) {
-
-        long size = 0;
-        File[] files = dir.listFiles();
-
-        for (File file : files) {
-            if (file.isFile()) {
-                size += file.length();
-            }
-        }
-
-        return size;
-    }
-    
-    
+    /*
+     * SetXMLFile Method
+     * @param ZLFile XML File for Daisy3 Book
+     */
     public void setXMLFile(ZLFile file){
         
         this.xmlFile= file;
         
     }
     
+    /*
+     * FolderSize Method
+     * @param File
+     * @return Long The size of the file
+     */
+    private static long folderSize(File directory) {
+        long length = 0;
+        
+        for (File file : directory.listFiles()) {
+            if (file.isFile())
+                length += file.length();
+            else
+                length += folderSize(file);
+        }
+        return length;
+    }
     
+    /*
+     * Clear Cache 
+     * @param File The file that is to be excluded from the cache deletion 
+     */
+    private void clearCache(File excludedFile){
+        
+        File cacheDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/");
+        
+        if (cacheDir.isDirectory()) {
+            String[] children = cacheDir.list();
+            for (int i = 0; i < children.length; i++) {
+                
+                File checkForDeletion = new File(cacheDir, children[i]);
+                
+                if(checkForDeletion != excludedFile){
+                    
+                    deleteRecursive(checkForDeletion);
+                    
+                }
+                
+            }
+        }
+        
+    }
     
+   /*
+    * DeleteRecursive Method
+    * @param File Deletes the file and any children within the file
+    */
+    private void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                
+                deleteRecursive(child);
 
-   
-
+        fileOrDirectory.delete();
+    }
     
 
 }
