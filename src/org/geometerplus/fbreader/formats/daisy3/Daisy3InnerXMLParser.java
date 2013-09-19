@@ -1,6 +1,7 @@
-/*
+/**
  * Daisy3InnerXMLParser
- * @author Jordan Gould jordangould@gmail.com
+ * Uses SAX parser to extract the content between two xml tags and store it as a string for retrieval 
+ * @author Jordan Gould jordangould@gmail.com 
  * 
  */
 
@@ -24,11 +25,17 @@ public class Daisy3InnerXMLParser {
     String tagId;
     String innerXML;
     
+    /**
+     * @constructor
+     * @param xmlFile
+     * @param attributes
+     */
     public  Daisy3InnerXMLParser(ZLFile xmlFile, ZLStringMap attributes){
         
-       
         this.tagId = attributes.getValue("id");
+        
         try{
+            //Create SAX parser and open xml file as input source
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance(); 
          
             SAXParser saxParser = saxParserFactory.newSAXParser(); 
@@ -41,6 +48,7 @@ public class Daisy3InnerXMLParser {
             
             InputSource inputsource = new InputSource(xmlFile.getInputStream());
             
+            //parse the xml file
             xmlReader.parse(inputsource); 
                     
             }
@@ -50,8 +58,12 @@ public class Daisy3InnerXMLParser {
                 
             }
    
-}
+    }
      
+    /*
+     * Inner Class MyContentHandler
+     * Parses xml file until it encounters a tag with the specified ID the invokes InnerConetent Handler
+     */
     private class MyContentHandler implements ContentHandler { 
 
         private XMLReader xmlReader; 
@@ -121,7 +133,10 @@ public class Daisy3InnerXMLParser {
     } 
     
     
-    
+    /*
+     * InnerClass InnerContentHandler
+     * Takes xml within the xml file and stores it in a string for later retrieval 
+     */
      private class InnerContentHandler implements ContentHandler { 
 
         private int depth = 1; 
@@ -161,6 +176,7 @@ public class Daisy3InnerXMLParser {
         public void startElement(String uri, String localName, String qName, 
                 Attributes atts) throws SAXException { 
         
+            //if it is the first tag append it to the stringbuilder
             if(isFirstTag){
                 
                 stringBuilder.append(startTag);
@@ -169,17 +185,16 @@ public class Daisy3InnerXMLParser {
            
             }
             
-            //append the math tag
+            //append the tag
             stringBuilder.append("<" + qName);
             
             //append attributes
-            
             for(int i=0 ;i < atts.getLength(); i++){
                 
                 stringBuilder.append(" " + atts.getQName(i) + "=\"" + atts.getValue(i) + "\"");
                 
             }
-            
+            //close tag
             stringBuilder.append(">");
      
             depth++; 
@@ -188,15 +203,14 @@ public class Daisy3InnerXMLParser {
 
         public void endElement(String uri, String localName, String qName) 
                 throws SAXException { 
-            
+            //append close tag
             stringBuilder.append("</" + qName +">");
             
             depth--; 
+            //if its the end of the innerXML tag then set the inner xml to innerXML and release control of the content handler 
             if(0 == depth) { 
                
                innerXML = stringBuilder.toString();
-               
-               Log.w("mathmloutput",stringBuilder.toString()); 
                
                xmlReader.setContentHandler(contentHandler); 
                
@@ -221,16 +235,13 @@ public class Daisy3InnerXMLParser {
         public void skippedEntity(String name) throws SAXException { 
         } 
         
-        public String getTagID(){
-            
-            return this.startTagId;
-            
-        }
-        
-    
-
     } 
      
+     
+     /**
+      * getXMLString
+      * @return innerXML that has been parsed as a string
+      */
      public String getXMLString(){
          
          return innerXML;

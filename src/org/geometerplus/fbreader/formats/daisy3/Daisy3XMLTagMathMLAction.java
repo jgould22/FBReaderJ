@@ -1,3 +1,10 @@
+/**
+ * Daisy3XMLTagMathMLAction
+ * Generates html file with MathML in it and links to the local file 
+ * @author Jordan Gould jordangould@gmail.com 
+ * 
+ */
+
 package org.geometerplus.fbreader.formats.daisy3;
 
 import java.io.File;
@@ -27,6 +34,7 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
     
     /**
      * Default constructor.
+     * @constructor
      */
     public static Daisy3XMLTagMathMLAction getInstance() {
         //if the instance is null, create a new one 
@@ -53,7 +61,8 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
           File mathMLHTML = new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/" + xmlFile.getShortName() +"/"+ xmlattributes.getValue("id") + ".html") ;
           
           if(new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/").exists()){
-              //Cache maintenance check to see if the cache is greater than 5mb, if it is it clears everything except the current boo
+
+              //Cache maintenance check to see if the cache is greater than 5mb, if it is it clears everything except the current book Folder
               if(folderSize(new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/"))>5242880){
                   
                   clearCache(new File(externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/" + xmlFile.getShortName()));
@@ -64,6 +73,7 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
           
           try {
               
+              //Create HTML file with mathML and MathJax
               mathMLHTML.getParentFile().mkdirs();
               mathMLHTML.createNewFile();
               FileOutputStream fOut = new FileOutputStream(mathMLHTML);
@@ -72,10 +82,11 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
               myOutWriter.close();
               fOut.close();
               
-              String link = externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML_cache/" + xmlFile.getShortName() +"/"+ xmlattributes.getValue("id") + ".html";
+              String link = externalPath.getAbsolutePath() +"/Android/data/org.geometerplus.android.fbreader/mathML/" + xmlFile.getShortName() +"/"+ xmlattributes.getValue("id") + ".html";
               
               final byte hyperlinkType;
              
+              //Insert link to mathML .html FIle
               hyperlinkType = FBTextKind.EXTERNAL_HYPERLINK;
               
               kind = hyperlinkType;
@@ -102,9 +113,10 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         
     }
     
-    /*
-     * CheckStorageState Method
-     * @return Boolean True if the storage is mounted false if not
+    /**
+     * StorageState Check
+     * Checks the status of the external storage 
+     * @return boolean  true if the external storage is available and writable, false otherwise
      */
     private boolean checkStorageState(){
         
@@ -129,8 +141,9 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         
     }
     
-    /*
+    /**
      * SetXMLFile Method
+     * sets the xml file that is to be parsed for mathML
      * @param ZLFile XML File for Daisy3 Book
      */
     public void setXMLFile(ZLFile file){
@@ -139,9 +152,9 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         
     }
     
-    /*
+    /**
      * FolderSize Method
-     * @param File
+     * @param File or Directory
      * @return Long The size of the file
      */
     private static long folderSize(File directory) {
@@ -156,7 +169,7 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         return length;
     }
     
-    /*
+    /**
      * Clear Cache 
      * @param File The file that is to be excluded from the cache deletion 
      */
@@ -181,7 +194,7 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
         
     }
     
-   /*
+   /**
     * DeleteRecursive Method
     * @param File Deletes the file and any children within the file
     */
@@ -193,6 +206,6 @@ public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
 
         fileOrDirectory.delete();
     }
-    
+       
 
 }
