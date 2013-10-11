@@ -21,8 +21,13 @@ import org.geometerplus.zlibrary.core.xml.ZLStringMap;
 
 public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
     
-    final static String mathMLTemplate1 = "<!DOCTYPE html> <html> <head> <title> Math Eqn</title> <script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script></head><body>";
-            
+    final static String mathMLTemplate1 = "<!DOCTYPE html> <html> <head> <title> Math Render</title> <script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script></head><body>";
+   
+    //final static String mathMLTemplate1 = "<!DOCTYPE html> <html> <head> <title> Math Render</title> <script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>";
+    
+    //final static String mathMLTemplate1 = "<!DOCTYPE html> <html> <head> <title> Math Render</title> <script type\"text/javascript\" src=\"file:///android_asset/js/MathJax/MathJax.js\"></script>";
+
+    
     final static String mathMLTemplate2 = "</body></html>";
             
     private static Daisy3XMLTagMathMLAction instance = null;

@@ -94,6 +94,12 @@ public class Daisy3InnerXMLParser {
                 
                 StringBuilder startTag = new StringBuilder();
                 
+                if(qName.indexOf(":") != -1  ){
+                    
+                    qName = qName.substring(qName.indexOf(":")+1, qName.length());
+                    
+                }
+                
                 startTag.append("<" + qName + " ");
                 
                 for(int i=0 ;i < atts.getLength(); i++){
@@ -185,6 +191,12 @@ public class Daisy3InnerXMLParser {
            
             }
             
+            if(qName.indexOf(":") != -1  ){
+                
+                qName = qName.substring(qName.indexOf(":")+1, qName.length());
+                
+            }
+            
             //append the tag
             stringBuilder.append("<" + qName);
             
@@ -204,6 +216,12 @@ public class Daisy3InnerXMLParser {
         public void endElement(String uri, String localName, String qName) 
                 throws SAXException { 
             //append close tag
+            if(qName.indexOf(":") != -1  ){
+                
+                qName = qName.substring(qName.indexOf(":")+1, qName.length());
+                
+            }
+            
             stringBuilder.append("</" + qName +">");
             
             depth--; 

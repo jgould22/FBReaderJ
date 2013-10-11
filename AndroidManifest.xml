@@ -230,6 +230,7 @@
         <activity android:name="org.geometerplus.android.fbreader.benetech.AccessibleNavigateActivity" android:label="Go to page" />
         <service android:name="org.geometerplus.android.fbreader.network.bookshare.subscription.MainPeriodicalDownloadService" />
         <service android:name="org.geometerplus.android.fbreader.network.bookshare.subscription.SubscriptionDownloadService" />
+        <activity android:name="org.geometerplus.android.fbreader.MathMLWebViewActivity" android:permission="android.permission.INTERNET"></activity>
 
     </application>
 </manifest>
