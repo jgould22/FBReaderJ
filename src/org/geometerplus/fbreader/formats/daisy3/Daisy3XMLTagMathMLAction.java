@@ -21,12 +21,14 @@ import org.geometerplus.zlibrary.core.xml.ZLStringMap;
 
 public class Daisy3XMLTagMathMLAction extends Daisy3XMLTagAction {
     
-    final static String mathMLTemplate1 = "<!DOCTYPE html> <html> <head> <title> Math Render</title> <script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script></head><body>";
-   
-    //final static String mathMLTemplate1 = "<!DOCTYPE html> <html> <head> <title> Math Render</title> <script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>";
-    
-    //final static String mathMLTemplate1 = "<!DOCTYPE html> <html> <head> <title> Math Render</title> <script type\"text/javascript\" src=\"file:///android_asset/js/MathJax/MathJax.js\"></script>";
-
+    final static String mathMLTemplate1 = "<!DOCTYPE html> <html> <head> <title> Math Render</title>" +
+    		"<script type=\"text/javascript\" src=\"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>" +
+    		"<script type=\"text/javascript\" src=\"https://ssl.gstatic.com/accessibility/javascript/android/chromeandroidvox.js\"></script>" +
+    		"<script type=\"text/javascript\">accessibility=function(){return 1;} accessibility.speak=function(a){alert(a);}" +
+    		    "accessibility.isSpeaking=function(){return 0;}accessibility.stop=function(){return 1;} " +
+    			"function testS() {cvox.ChromeVox.syncToNode(document.getElementById('mathform'), true);}" +
+    		"</script>" +
+    		"</head><body>";
     
     final static String mathMLTemplate2 = "</body></html>";
             
