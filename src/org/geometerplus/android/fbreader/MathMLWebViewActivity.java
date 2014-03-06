@@ -3,8 +3,9 @@ package org.geometerplus.android.fbreader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-
+import android.graphics.*;
 import javax.security.auth.callback.CallbackHandler;
+
 
 import android.content.Context;
 import android.os.Bundle;
@@ -20,6 +21,8 @@ import android.webkit.WebViewClient;
 public class MathMLWebViewActivity extends Activity {
 
     private WebView webview;
+    private TextToSpeechWrapper mTextToSpeech;
+    private Intent intent;
     
     public void onCreate(Bundle savedInstanceState) {
        super.onCreate(savedInstanceState);
@@ -31,32 +34,40 @@ public class MathMLWebViewActivity extends Activity {
        WebSettings webSettings = webview.getSettings();
        webSettings.setJavaScriptEnabled(true);
        
-       Intent intent = getIntent();
-       
+       intent = getIntent();
        
          
        //Load MathJax to render MathML, this is done separately due to bug in android 3.0/4.0 involving url parsing with "?" 
        webview.setWebViewClient(new WebViewClient() {  
+           @Override
+           public void onPageStarted(WebView view, String url, Bitmap favicon) {
+              
+               
+             /*  webview.loadUrl("javascript:<script type=\"text//javascript\" " +
+                       "src=\"https:////c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?" +
+                       "config=TeX-AMS-MML_HTMLorMML<//script>");  
+               */   
+               
+               
+           }
            @Override  
            public void onPageFinished(WebView view, String url)  
            {  
                
-               webview.loadUrl("javascript:<script type=\"text//javascript\" " +
-               		"src=\"https:////c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?" +
-               		"config=TeX-AMS-MML_HTMLorMML<//script>");  
+               injectTTSapis();
+      
+               
            }  
        });  
        
-      injectTTSapis();
-       
-      webview.loadUrl("file://" + intent.getExtras().getString("fileLocation"));
+       webview.loadUrl("file://" + intent.getExtras().getString("fileLocation"));
 
     }
     
     
     private void injectTTSapis(){
         
-        TextToSpeechWrapper mTextToSpeech = new TextToSpeechWrapper(webview.getContext());
+        mTextToSpeech = new TextToSpeechWrapper(webview.getContext());
         webview.addJavascriptInterface(mTextToSpeech, "accessibility");
         
         //CallbackHandler mCallback = new CallbackHandler("accessibilityTraversal");
@@ -119,8 +130,7 @@ public class MathMLWebViewActivity extends Activity {
     public void onDestroy()
     {
         super.onDestroy();
-        mTextToSpeech.
-        
+        mTextToSpeech.shutdown();     
         
     }
 
